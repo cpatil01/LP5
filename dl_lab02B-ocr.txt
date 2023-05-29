@@ -1,0 +1,180 @@
+
+
+    import tensorflow as tf
+    from tensorflow import keras
+    from tensorflow.keras import models, layers
+    from keras.models import Sequential
+    from keras.layers import Dense, Flatten
+    import numpy as np
+    import pandas as pd
+
+    (x_train, y_train), (x_test, y_test) = keras.datasets.mnist.load_data()
+
+    x_train.shape
+
+    (60000, 28, 28)
+
+    x_train
+
+    array([[[0, 0, 0, ..., 0, 0, 0],
+            [0, 0, 0, ..., 0, 0, 0],
+            [0, 0, 0, ..., 0, 0, 0],
+            ...,
+            [0, 0, 0, ..., 0, 0, 0],
+            [0, 0, 0, ..., 0, 0, 0],
+            [0, 0, 0, ..., 0, 0, 0]],
+
+           [[0, 0, 0, ..., 0, 0, 0],
+            [0, 0, 0, ..., 0, 0, 0],
+            [0, 0, 0, ..., 0, 0, 0],
+            ...,
+            [0, 0, 0, ..., 0, 0, 0],
+            [0, 0, 0, ..., 0, 0, 0],
+            [0, 0, 0, ..., 0, 0, 0]],
+
+           [[0, 0, 0, ..., 0, 0, 0],
+            [0, 0, 0, ..., 0, 0, 0],
+            [0, 0, 0, ..., 0, 0, 0],
+            ...,
+            [0, 0, 0, ..., 0, 0, 0],
+            [0, 0, 0, ..., 0, 0, 0],
+            [0, 0, 0, ..., 0, 0, 0]],
+
+           ...,
+
+           [[0, 0, 0, ..., 0, 0, 0],
+            [0, 0, 0, ..., 0, 0, 0],
+            [0, 0, 0, ..., 0, 0, 0],
+            ...,
+            [0, 0, 0, ..., 0, 0, 0],
+            [0, 0, 0, ..., 0, 0, 0],
+            [0, 0, 0, ..., 0, 0, 0]],
+
+           [[0, 0, 0, ..., 0, 0, 0],
+            [0, 0, 0, ..., 0, 0, 0],
+            [0, 0, 0, ..., 0, 0, 0],
+            ...,
+            [0, 0, 0, ..., 0, 0, 0],
+            [0, 0, 0, ..., 0, 0, 0],
+            [0, 0, 0, ..., 0, 0, 0]],
+
+           [[0, 0, 0, ..., 0, 0, 0],
+            [0, 0, 0, ..., 0, 0, 0],
+            [0, 0, 0, ..., 0, 0, 0],
+            ...,
+            [0, 0, 0, ..., 0, 0, 0],
+            [0, 0, 0, ..., 0, 0, 0],
+            [0, 0, 0, ..., 0, 0, 0]]], dtype=uint8)
+
+    x_test.shape
+
+    (10000, 28, 28)
+
+    plt.imshow(x_train[2])
+
+    <matplotlib.image.AxesImage at 0x22bb4e6bee0>
+
+[]
+
+    x_train=x_train/255
+    x_test=x_test/255
+
+    model=Sequential()
+    model.add(Flatten( input_shape=(28,28)))
+    model.add(Dense(128,activation='relu'))
+    model.add(Dense(128,activation='softmax'))
+
+    model.summary()
+
+    Model: "sequential_8"
+    _________________________________________________________________
+     Layer (type)                Output Shape              Param #   
+    =================================================================
+     flatten (Flatten)           (None, 784)               0         
+                                                                     
+     dense_14 (Dense)            (None, 128)               100480    
+                                                                     
+     dense_15 (Dense)            (None, 128)               16512     
+                                                                     
+    =================================================================
+    Total params: 116,992
+    Trainable params: 116,992
+    Non-trainable params: 0
+    _________________________________________________________________
+
+    model.compile(optimizer='adam',
+                loss='sparse_categorical_crossentropy')
+
+    model.fit(x_train,y_train,
+             epochs=10,
+             batch_size=512,
+             validation_split=0.2)
+
+    Epoch 1/10
+    94/94 [==============================] - 2s 20ms/step - loss: 0.0529 - val_loss: 0.0959
+    Epoch 2/10
+    94/94 [==============================] - 1s 14ms/step - loss: 0.0496 - val_loss: 0.0965
+    Epoch 3/10
+    94/94 [==============================] - 1s 16ms/step - loss: 0.0460 - val_loss: 0.0977
+    Epoch 4/10
+    94/94 [==============================] - 1s 15ms/step - loss: 0.0442 - val_loss: 0.0933
+    Epoch 5/10
+    94/94 [==============================] - 1s 15ms/step - loss: 0.0404 - val_loss: 0.0940
+    Epoch 6/10
+    94/94 [==============================] - 1s 15ms/step - loss: 0.0375 - val_loss: 0.0966
+    Epoch 7/10
+    94/94 [==============================] - 1s 15ms/step - loss: 0.0369 - val_loss: 0.0946
+    Epoch 8/10
+    94/94 [==============================] - 1s 15ms/step - loss: 0.0337 - val_loss: 0.0930
+    Epoch 9/10
+    94/94 [==============================] - 1s 14ms/step - loss: 0.0312 - val_loss: 0.0923
+    Epoch 10/10
+    94/94 [==============================] - 1s 14ms/step - loss: 0.0294 - val_loss: 0.0917
+
+    <keras.callbacks.History at 0x22bac978580>
+
+    y_prob=model.predict(x_test)
+
+    313/313 [==============================] - 2s 5ms/step
+
+    y_prob
+
+    array([[0.00000002, 0.        , 0.00000494, ..., 0.        , 0.        ,
+            0.        ],
+           [0.00000001, 0.00046374, 0.99952734, ..., 0.        , 0.        ,
+            0.        ],
+           [0.00006376, 0.99497414, 0.00040844, ..., 0.00000057, 0.00000066,
+            0.00000008],
+           ...,
+           [0.        , 0.        , 0.        , ..., 0.        , 0.        ,
+            0.        ],
+           [0.        , 0.        , 0.        , ..., 0.        , 0.        ,
+            0.        ],
+           [0.00000002, 0.        , 0.0000001 , ..., 0.        , 0.        ,
+            0.        ]], dtype=float32)
+
+    y_pred=y_prob.argmax(axis=1)
+    y_pred
+
+    array([7, 2, 1, ..., 4, 5, 6], dtype=int64)
+
+    from sklearn.metrics import accuracy_score
+    accuracy_score(y_test,y_pred)
+
+    0.9744
+
+    y_pred[1]
+
+    2
+
+    plt.imshow(x_test[1])
+
+    <matplotlib.image.AxesImage at 0x22bb6f05cd0>
+
+[]
+
+    model.predict(x_test[0].reshape(1,28,28)).argmax(axis=1)
+
+    1/1 [==============================] - 0s 133ms/step
+
+    array([7], dtype=int64)
