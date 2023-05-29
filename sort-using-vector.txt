@@ -1,0 +1,69 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+#include <omp.h>
+
+void parallel_bubble_sort(std::vector<int>& arr) {
+    bool swapped = true;
+    int n = arr.size();
+    #pragma omp parallel shared(arr, n, swapped)
+    {
+        while (swapped) {
+            swapped = false;
+            #pragma omp for nowait
+            for (int i = 1; i < n; i++) {
+                if (arr[i - 1] > arr[i]) {
+                    std::swap(arr[i - 1], arr[i]);
+                    swapped = true;
+                }
+            }
+        }
+    }
+}
+
+void parallel_merge_sort(std::vector<int>& arr) {
+    if (arr.size() > 1) {
+        int mid = arr.size() / 2;
+        std::vector<int> left(arr.begin(), arr.begin() + mid);
+        std::vector<int> right(arr.begin() + mid, arr.end());
+
+        #pragma omp parallel sections
+        {
+            #pragma omp section
+            parallel_merge_sort(left);
+            #pragma omp section
+            parallel_merge_sort(right);
+        }
+
+        std::merge(left.begin(), left.end(), 
+        right.begin(), right.end(), arr.begin());
+    }
+}
+
+int main() {
+    std::vector<int> arr = {5, 2, 9, 1, 7, 6, 8, 3, 4};
+
+    std::cout << "Original array: ";
+    for (auto i : arr) {
+        std::cout << i << " ";
+    }
+    std::cout << std::endl;
+
+    // Parallel bubble sort
+    parallel_bubble_sort(arr);
+    std::cout << "After parallel bubble sort: ";
+    for (auto i : arr) {
+        std::cout << i << " ";
+    }
+    std::cout << std::endl;
+
+    // Parallel merge sort
+    parallel_merge_sort(arr);
+    std::cout << "After parallel merge sort: ";
+    for (auto i : arr) {
+        std::cout << i << " ";
+    }
+    std::cout << std::endl;
+
+    return 0;
+}
