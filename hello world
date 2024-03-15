@@ -1,0 +1,157 @@
+// eslint-disable-next-line no-unused-vars
+import React, { useState, useEffect, useRef } from 'react';
+import { BrowserMultiFormatReader } from '@zxing/browser';
+import { Button } from '../components/common/button';
+import { Link, useNavigate } from 'react-router-dom';
+
+export const Scanner = () => {
+	const [isScanning, setScanning] = useState(false);
+	const [scanner, setScanner] = useState(null);
+	const videoRef = useRef(null); // Reference to the video element
+
+	const navigate = useNavigate();
+
+	useEffect(() => {
+		const initializeScanner = async () => {
+			try {
+				const codeReader = new BrowserMultiFormatReader();
+				setScanner(codeReader);
+			} catch (error) {
+				console.error('Error initializing scanner:', error);
+			}
+		};
+
+		initializeScanner();
+
+		return () => {
+			if (scanner) {
+				scanner.reset?.();
+			}
+		};
+	}, []);
+
+	useEffect(() => {
+		if (!isScanning) {
+			handleToggleScanning();
+		}
+	}, []);
+
+	const handleScan = (result) => {
+		if (result) {
+			const params = new URLSearchParams();
+			params.set('text', result.text);
+			navigate(`./verify? ${ params.toString() } `);
+			setScanning(false); // Stop scanning after a successful scan
+			stopCamera(); // Stop the camera after scanning
+		}
+	};
+
+	const stopCamera = () => {
+		if (videoRef.current) {
+			// Stop the video stream
+			const stream = videoRef.current.srcObject;
+			const tracks = stream.getTracks();
+			tracks.forEach((track) => track.stop());
+		}
+	};
+
+	const handleToggleScanning = () => {
+		if (isScanning) {
+			// Stop scanning
+			setScanner(null);
+			setScanning(false);
+			stopCamera(); // Stop the camera when scanning is stopped
+		} else {
+			// Start scanning
+			console.log('scanning');
+			const codeReader = new BrowserMultiFormatReader();
+			setScanner(codeReader);
+			codeReader
+				.decodeOnceFromVideoDevice(undefined, 'video')
+				.then(handleScan)
+				.catch((error) => console.error('Error scanning:', error));
+			setScanning(true);
+		}
+	};
+
+	return (
+		<div className="flex grow flex-col items-center justify-center h-full bg-gray-200">
+			<div className="relative h-full  rounded-lg border border-gray-300 w-full">
+				{/* Change the above line and remove max-w-md and add w-full to make it full width */}
+				<video
+					id="video"
+					ref={videoRef}
+					className="w-full h-full object-cover"
+					autoPlay
+				></video>
+
+				<div className="absolute inset-0 bg-black/70" />
+				<div className="absolute top-24  left-2/4 -translate-x-2/4 bg-white mx-auto aspect-video size-64 rounded-2xl mix-blend-overlay"></div>
+
+				<div className="absolute left-2/4 flex justify-between flex-col gap-20 h-full md:h-[calc(100%_-_6rem)] -translate-x-2/4 max-w-sm w-full top-0 pt-24">
+					<h2 className='text-white mx-auto -translate-y-16 text-xl font-bold font-VodafoneRg'>Scan barcode of your device</h2>
+					
+					<svg
+						className="size-64 scale-110 absolute left-2/4 -translate-x-2/4"
+						viewBox="0 0 278 278"
+						fill="none"
+					>
+						<path
+							d="M276 50.6439V22C276 10.9543 267.046 2 256 2H227.356M276 227.356V256C276 267.046 267.046 276 256 276H227.356M50.6439 276H22C10.9543 276 2 267.046 2 256V227.356M2 50.6439V22C2 10.9543 10.9543 2 22 2H50.6439"
+							stroke="#E60000"
+							strokeWidth="3"
+						/>
+					</svg>
+
+					<div className="w-full font-VodafoneLt flex flex-col gap-6 mt-auto">
+						<div className="w-full mx-auto flex items-center justify-center gap-5 text-white">
+							<div className="h-px bg-white w-1/4" />
+							<span>or</span>
+							<div className="h-px bg-white w-1/4" />
+						</div>
+
+						<h2 className='text-white mx-auto text-lg font-bold font-VodafoneRg'>Manually enter the details</h2>
+
+
+						<Button
+							as={Link}
+							to="/manuallyVerify"
+							className=" mx-auto text-center "
+							
+						>
+							{/* Change width above */}
+							Manually enter the details
+						</Button>
+					</div>
+				</div>
+			</div>
+		</div>
+	);
+};
+
+export default Scanner;
+
+/**
+ * 			{isPopupOpen && (
+				<div className=" h-80 fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-gray-400 rounded-lg p-4 z-10">
+					<p className="text-center">Scanned Data: {scannedData}</p>
+					<LocationDisplay />
+					<div className="flex justify-between mt-4">
+						{images.map((imageUrl, index) => (
+							<img
+								key={index}
+								src={imageUrl}
+								alt={`Image ${index + 1}`}
+								className="w-24 h-24 object-cover"
+							/>
+						))}
+					</div>
+					<button
+						className="block mx-auto bg-red-600 text-white font-bold py-2 px-4 rounded mt-4"
+						onClick={handleClosePopup}
+					>
+						OK
+					</button>
+				</div>
+			)}
+ */
