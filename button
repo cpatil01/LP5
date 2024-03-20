@@ -1,0 +1,12 @@
+<button
+				className="border border-gray-300 bg-vfWhite shadow rounded  w-40 h-10 text-center"
+				onClick={() => toggleDisplay(true)}
+			>
+				<p className="font-VodafoneRg text-normal text-base">Initiate PAV</p>
+			</button>
+			<button
+				className="border border-gray-300 bg-vfWhite shadow rounded w-40 h-10 text-center"
+				onClick={() => toggleDisplay(false)}
+			>
+				<p className="font-VodafoneRg text-normal text-base">Activities</p>
+			</button>
