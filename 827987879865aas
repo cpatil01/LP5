@@ -1,0 +1,51 @@
+import { useState } from 'react';
+import { Browse } from "../icons/Browse";
+
+const FileUploadField = ({ label, name, register, errors }) => {
+    const [selectedFileName, setSelectedFileName] = useState('');
+
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setSelectedFileName(file.name);
+        }
+    };
+
+    return (
+        <div className="mb-4 relative">
+            <label htmlFor={name} className="block text-txt_grey text-sm font-bold mb-2">
+                {label}
+            </label>
+            <input
+                type="file"
+                id={name}
+                {...register(name)}
+                className="hidden"
+                onChange={handleFileChange}
+            />
+            <div className="flex items-center">
+                <label htmlFor={name} className={`shadow appearance-none border rounded w-full py-2 px-3 text-txt_grey leading-tight focus:outline-none focus:shadow-outline ${
+                    errors[name]
+                        ? 'border-brd_r_500'
+                        : 'border-brd_g_400 hover:border-brd_g_500'
+                } cursor-pointer`}>
+                    <div className="flex justify-between">
+                        <span>{selectedFileName || 'Choose file to upload'}</span>
+                        <div className="ml-2">
+                            <Browse
+                                width="24px"
+                                height="24px"
+                                className="text-text_02"
+                            />
+                        </div>
+                    </div>
+                </label>
+                {errors[name] && (
+                    <p className="text-support_01 text-xs">{errors[name].message}</p>
+                )}
+            </div>
+        </div>
+    );
+};
+
+export default FileUploadField;
