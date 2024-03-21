@@ -1,0 +1,64 @@
+import React from 'react';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import { Controller } from 'react-hook-form';
+import { Label } from './Label';
+import CalendarIcon from '../icons/Calender';
+
+const Datepicker = ({ label, control, name, errors }) => {
+    return (
+        <div className="relative">
+            <Label name={name} label={label} />
+            <Controller
+                control={control}
+                name={name}
+                render={({ field: { onChange, value } }) => {
+                    // Ensure value is a Date object
+                    const selectedDate = value ? new Date(value) : null;
+
+                    return (
+                        <div className="datepicker-wrapper">
+                            <DatePicker
+                                selected={selectedDate}
+                                onChange={onChange}
+                                dateFormat="dd-MM-yyyy"
+                                className={`w-full px-4 py-2 border rounded-md pr-10 shadow appearance-none text-text_02 leading-tight focus:outline-none disabled:bg-input_bg disabled:text-txt_input disabled:border-brd_g_200 disabled:shadow-none hover:border-vfAquaBlue focus:shadow-outline focus:border-vfAquaBlue ${
+                                    errors[name]
+                                        ? 'border-support_01'
+                                        : 'border-gray-400 hover:border-vfAquaBlue'
+                                }`}
+                                calendarClassName="bg-white shadow-lg rounded border border-gray-400"
+                                dayClassName={(date) =>
+                                    selectedDate && date.toDateString() === selectedDate.toDateString()
+                                        ? 'text-white bg-red-500 rounded-full p-2' // Set selected date with red background and white text
+                                        : date.toDateString() === new Date().toDateString()
+                                            ? 'text-white bg-yellow-400 rounded-full p-2' // Set today's date with yellow background and white text
+                                            : 'text-text_02 hover:bg-vfRed/70 hover:text-vfWhite rounded-full p-2'
+                                }
+                                monthClassName={(date) =>
+                                    'text-text_02 hover:bg-vfRed/70 hover:text-vfWhite rounded-md p-2'
+                                }
+                                yearClassName={(date) =>
+                                    'text-text_02 hover:bg-vfRed/70 hover:text-vfWhite rounded-md p-2'
+                                }
+                                popperClassName="min-w-[300px] lg:min-w-[400px] md:min-w-[400px] sm:min-w-[300px]"
+                            />
+                            <div className="absolute inset-y-[1rem] right-0 flex items-center px-3 pointer-events-none">
+                                <CalendarIcon
+                                    width="24px"
+                                    height="24px"
+                                    className="text-text_02"
+                                />
+                            </div>
+                            {errors[name] && (
+                                <p className="text-support_01 text-xs">{errors[name].message}</p>
+                            )}
+                        </div>
+                    );
+                }}
+            />
+        </div>
+    );
+};
+
+export default Datepicker;
