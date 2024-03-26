@@ -1,0 +1,135 @@
+import SelectField from '../common/SelectField';
+import FileUploadField from '../common/FileUploadField';
+import * as yup from 'yup';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { useForm } from 'react-hook-form';
+import { useState } from 'react';
+import Datepicker from '../common/DatePicker';
+import tick from '../../assets/tick.svg';
+import { Button } from '../common/button';
+import Popup from '../common/Popup';
+import { TEXT_KEYS } from '../../utils/textKeys';
+
+const PAVForm = () => {
+    const schema = yup.object().shape({
+        selectRole: yup.string().required(TEXT_KEYS.PAVForm.ERROR_ROLE),
+        startDate: yup.string().required(TEXT_KEYS.PAVForm.SELECT_DATE),
+        endDate: yup.string()
+            .required(TEXT_KEYS.PAVForm.SELECT_DATE)
+            .test(TEXT_KEYS.PAVForm.ERROR_TEST, TEXT_KEYS.PAVForm.TEST_ENDDATE , function(value) {
+                const startDate = this.parent.startDate;
+                return value !== startDate;
+            }),
+        selectedFile: yup.mixed().required(TEXT_KEYS.PAVForm.FILE_REQUIRED)
+            .test(TEXT_KEYS.PAVForm.FILESIZE, TEXT_KEYS.PAVForm.FILELARGE, (value) => value && value.size <= 10485760),
+    });
+
+    const { register, handleSubmit, setValue, watch, formState: { errors, isValid } } = useForm({
+        resolver: yupResolver(schema),
+    });
+
+    const [open, setOpen] = useState(false);
+
+    const onSubmit = (data) => {
+        console.log(data);
+        setOpen(true);
+    };
+
+    return (
+        <div className="justify-center items-center bg-btn_tertiary_hover h-full w-full flex mt-10">
+            <form onSubmit={handleSubmit(onSubmit)} className="bg-vfWhite shadow rounded py-10 px-8 w-[610px] h-auto">
+                <div className="mt-1">
+                    <h1 className="font-VodafoneRg font- text-2xl text-center">
+                        {TEXT_KEYS.PAVForm.INITIATE_ACTIVITY}
+                    </h1>
+                    <div className="mt-8">
+                        <div>
+                            <label className="flex justify-start font-VodafoneRg text-sm font-normal text-btn_secondary">
+                                {TEXT_KEYS.PAVForm.SELECT_ROLE}
+                            </label>
+                            <div className="mt-[-4px]">
+                                <SelectField
+                                    name="selectRole"
+                                    register={register}
+                                    errors={errors}
+                                    disabled={false}
+                                    options={[
+                                        { value: null, label: 'Select an option' },
+                                        { value: 'Employees & IT Ops', label: 'Employees & IT Ops' },
+                                        { value: 'Security Lead', label: 'Security Lead' },
+                                    ]}
+                                    selectedOption={watch('selectRole')}
+                                    onChangeValue={setValue}
+                                />
+                            </div>
+                        </div>
+                        <div className="flex gap-5 flex-row justify-between mt-6">
+                            <div className="w-[263px]">
+                                <label className="flex justify-start font-VodafoneRg text-sm font-normal text-btn_secondary">
+                                    {TEXT_KEYS.PAVForm.START_DATE}
+                                </label>
+                                <div className="mt-[-4px]">
+                                    <Datepicker control={register} name="startDate" errors={errors} />
+                                </div>
+                            </div>
+                            <div className="w-[263px]">
+                                <label className="flex justify-start font-VodafoneRg text-sm font-normal text-btn_secondary">
+                                    {TEXT_KEYS.PAVForm.END_DATE}
+                                </label>
+                                <div className="mt-[-4px]">
+                                    <Datepicker control={register} name="endDate" errors={errors} />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="mt-6">
+                        <label className="flex justify-start font-VodafoneRg text-sm font-normal text-btn_secondary">
+                            {TEXT_KEYS.PAVForm.UPLOAD_FILE}
+                        </label>
+                        <div className="mt-[-4px]">
+                            <FileUploadField
+                                name="selectedFile"
+                                register={register}
+                                errors={errors}
+                                showProgress={true}
+                                setValue={setValue}
+                                allowedTypes={[".xls", ".xlsx"]}
+                            />
+                        </div>
+                    </div>
+                    <div>
+                        <div className="flex place-content-center mt-10 ">
+                            <Button
+                                type="submit"
+                                variant="submitClass"
+                                className={`w-[152px] h-11 bg-btn_submit rounded-md ${!isValid && 'opacity-50 cursor-not-allowed'}`}
+                                disabled={!isValid}
+                            >
+                                <p className="text-center text-white text-lg font-semibold font-VodafoneLt">
+                                    {TEXT_KEYS.ASSET_VERIFICATION.SUBMIT}
+                                </p>
+                            </Button>
+                        </div>
+                        <Popup
+                            open={open}
+                            additionalClass="w-[610px]"
+                            onClose={() => setOpen(false)}
+                            title={TEXT_KEYS.POP_PAV.POP_TITLE}
+                            body={TEXT_KEYS.POP_PAV.POP_BODY}
+                            actions={[
+                                {
+                                    label: TEXT_KEYS.RAISED_TICKET.LABLE_CLOSE,
+                                    type: 'close',
+                                    onClick: () => setOpen(false),
+                                },
+                            ]}
+                            icon={tick}
+                        />
+                    </div>
+                </div>
+            </form>
+        </div>
+    );
+};
+
+export default PAVForm;
